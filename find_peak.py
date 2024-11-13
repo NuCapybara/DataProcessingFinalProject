@@ -107,6 +107,31 @@ def load_and_plot_data(file_path):
             
             segments.append((segment_time, segment_data))
 
+        # For the fourth segment, truncate data after stabilization
+        if len(segments) >= 4:
+            fourth_segment_time, fourth_segment_data = segments[3]
+
+            # Define stabilization criteria: continuous values within [-500, 500]
+            stable_lower = -300
+            stable_upper = 300
+            stabilization_window = int(20 * sampling_rate)  # e.g., 20 seconds of stable data
+
+            # Find stabilization point only after the fourth peak is fully included
+            cutoff_index = len(fourth_segment_data)  # Default to full length if no stabilization point found
+            for idx in range(len(fourth_segment_data) - stabilization_window):
+                # Define a window from the current point to stabilization_window length
+                window = fourth_segment_data[idx:idx + stabilization_window]
+                if np.all((window >= stable_lower) & (window <= stable_upper)):
+                    cutoff_index = idx  # Mark where stabilization begins
+                    break
+
+            # Truncate the fourth segment after the stabilization point
+            fourth_segment_time = fourth_segment_time[:cutoff_index]
+            fourth_segment_data = fourth_segment_data[:cutoff_index]
+
+            # Update the fourth segment in the list
+            segments[3] = (fourth_segment_time, fourth_segment_data)
+
         # Plot each segment separately
         plt.figure(figsize=(10, 6))
         for idx, (time_seg, data_seg) in enumerate(segments):
