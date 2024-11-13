@@ -37,13 +37,14 @@ def load_and_plot_data(file_path):
 
     # Ensure each column is in 1D array format for plotting
     time_data = df['time'].values
-
     # Plot Sensor/Force Data (S1 to S6)
     plt.figure(figsize=(12, 6))
     plotList = [4, 1, 3]
     for i in plotList:
         sensor_data = df[f'S{i}'].values
         plt.plot(time_data, sensor_data, label=f'S{i}')
+
+
     plt.title(f"Sensor/Force Data over Time - {os.path.basename(file_path)}")
     plt.xlabel("Time (s)")
     plt.ylabel("Force or Sensor Value (Balanced)")
