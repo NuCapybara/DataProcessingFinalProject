@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import ast
 
 # Load the data
-file_path = 'emg_csv_data/h0/H_r1deg90h0/H_r1deg90h0_RL_emg.csv'
+file_path = 'emg_csv_data/h0/H_r1deg45h0/H_r1deg45h0_RU_emg.csv'
 data = pd.read_csv(file_path)
 
 # Function to parse the _data column and extract array values
