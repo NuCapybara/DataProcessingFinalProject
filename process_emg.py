@@ -1,79 +1,36 @@
 import pandas as pd
-import numpy as np
+import ast
+from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
-from scipy.signal import butter, filtfilt
-import ruptures as rpt
-import re
 
-# Load the CSV file
-df = pd.read_csv('emg_csv_data/h0/H_r1deg0h0/H_r1deg0h0_RL_emg.csv')
+# Load the data
+data = pd.read_csv("emg_csv_data/h0/H_r1deg0h0/H_r1deg0h0_RL_emg.csv")
+# Parse the _data column to extract arrays and create a column for channel_1
+parsed_channel_1 = []
 
-# Convert timestamp to seconds for easier interpretation (optional)
-df['timestamp'] = (df['timestamp'] - df['timestamp'].min()) / 1e9
+for row in data['_data']:
+    # Convert the string representation of the array to a list of integers
+    array = ast.literal_eval(row.split("'h', ")[1].strip(")"))
+    # Extract only channel_1 (assuming it’s the second element in the array)
+    parsed_channel_1.append(array[1])
 
-# Define a function to parse the _data field
-def parse_emg_data(data_str):
-    # Use regex to find all integers in the string
-    return list(map(int, re.findall(r"-?\d+", data_str)))
+# Add parsed channel_1 data to the DataFrame
+data['channel_1'] = parsed_channel_1
 
-# Apply parsing function to _data column
-emg_data = df['_data'].apply(parse_emg_data)
+# Prepare data for clustering: cluster based on sample index only
+# Add a sample index column
+data['sample_index'] = data.index
 
-# Expand parsed EMG data into separate columns
-emg_df = pd.DataFrame(emg_data.tolist(), columns=[f'channel_{i}' for i in range(len(emg_data.iloc[0]))])
+# Apply K-Means clustering on sample_index to divide horizontally
+n_clusters = 8
+kmeans = KMeans(n_clusters=n_clusters, random_state=0)
+data['Cluster'] = kmeans.fit_predict(data[['sample_index']])
 
-# Concatenate timestamp and expanded EMG data
-df = pd.concat([df['timestamp'], emg_df], axis=1)
-
-# Define a function to apply a bandpass filter
-def butter_bandpass_filter(data, lowcut, highcut, fs, order=4):
-    nyquist = 0.5 * fs
-    low = lowcut / nyquist
-    high = highcut / nyquist
-    b, a = butter(order, [low, high], btype='band')
-    y = filtfilt(b, a, data)
-    return y
-
-# Filter parameters
-lowcut = 20.0    # Lower cutoff frequency in Hz
-highcut = 450.0  # Upper cutoff frequency in Hz
-fs = 1000.0      # Sampling frequency in Hz (adjust based on your data)
-
-# Select a specific channel for analysis, e.g., channel_1
-channel_list = ['channel_0', 'channel_1', 'channel_2', 'channel_3', 'channel_4', 'channel_5', 'channel_6', 'channel_7']
-for channel in channel_list:
-    signal = emg_df[channel].values
-
-    # Apply bandpass filter to the selected channel
-    filtered_signal = butter_bandpass_filter(signal, lowcut, highcut, fs)
-
-    # Apply change point detection using the ruptures library
-    # Create a model instance for change point detection with a different model and lower penalty
-    model = "l2"  # Using "l2" model instead of "rbf" for detecting mean changes
-    algo = rpt.Pelt(model=model).fit(filtered_signal)
-
-    # Try with a lower penalty value
-    penalty = 5  # Lower penalty for more sensitivity
-    change_points = algo.predict(pen=penalty)
-
-    # Print change points to see if any were found
-    print(f"Detected change points: {change_points}")
-
-    # Filter out change points that exceed the signal length
-    valid_change_points = [cp for cp in change_points if cp < len(filtered_signal)]
-
-    # Plot the original signal with detected change points
-    plt.figure(figsize=(12, 6))
-    plt.plot(df['timestamp'], filtered_signal, label='Filtered Signal', color='b')
-
-    # Plot detected change points if any were found
-    if len(valid_change_points) > 0:  # Make sure there are detected points within a valid range
-        for cp in valid_change_points:
-            plt.axvline(x=df['timestamp'].iloc[cp], color='r', linestyle='--', label='Change Point' if cp == valid_change_points[0] else "")
-
-    plt.title("Change Point Detection in EMG Data (Filtered) - {channel}")
-    plt.xlabel("Time (s)")
-    plt.ylabel("EMG Signal (Filtered)")
-    plt.legend(loc="upper right")
-    plt.grid(True)
-    plt.show()
+# Plot the channel_1 data, color-coded by cluster
+plt.figure(figsize=(12, 6))
+plt.scatter(data['sample_index'], data['channel_1'], c=data['Cluster'], cmap="viridis", alpha=0.6)
+plt.colorbar(label="Cluster")
+plt.xlabel("Sample Index")
+plt.ylabel("Channel 1 EMG Signal")
+plt.title("Channel 1 EMG Data Clustering into 8 Clusters (Horizontal Clustering)")
+plt.show()
