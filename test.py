@@ -6,8 +6,8 @@ import ast
 import re
 
 # Base directory containing the EMG and IMU CSV files in subfolders
-base_directory = 'emg_csv_data/h0/'
-output_directory = 'output_emg_windows/h0'  # Directory for saving output window files
+base_directory = 'emg_csv_data/h1/H_r1deg0h1'
+output_directory = 'output_emg_windows/h1_new'  # Directory for saving output window files
 os.makedirs(output_directory, exist_ok=True)  # Ensure the output directory exists
 
 # Function to parse the _data column and extract array values

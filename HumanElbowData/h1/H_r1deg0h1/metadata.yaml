@@ -38,9 +38,9 @@ rosbag2_bagfile_information:
   compression_format: ""
   compression_mode: ""
   relative_file_paths:
-    - H_r0deg0h1_0.mcap
+    - H_r1deg0h1_0.mcap
   files:
-    - path: H_r0deg0h1_0.mcap
+    - path: H_r1deg0h1_0.mcap
       starting_time:
         nanoseconds_since_epoch: 1731182645712817237
       duration:
