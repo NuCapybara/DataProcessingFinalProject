@@ -7,9 +7,8 @@ import re
 
 # Base directory containing the EMG and IMU CSV files in subfolders
 base_directory = 'emg_csv_data/h0/'
-
-# Dictionary to store time windows for each RL_emg file
-windows_dict = {}
+output_directory = 'output_emg_windows/h0'  # Directory for saving output window files
+os.makedirs(output_directory, exist_ok=True)  # Ensure the output directory exists
 
 # Function to parse the _data column and extract array values
 def parse_emg_array(data_str):
@@ -39,7 +38,7 @@ for root, dirs, files in os.walk(base_directory):
     ru_emg_file = None
     rl_imu_file = None
     ru_imu_file = None
-    print("lalala")
+
     # Identify RL_emg, RU_emg, RL_imu, and RU_imu files in the current subfolder
     for file_name in files:
         if file_name.endswith('RL_emg.csv'):
@@ -94,9 +93,13 @@ for root, dirs, files in os.walk(base_directory):
             peak_end_time = min(end_time, peak_time + window_size / 2 + right_expansion)
             clusters.append((peak_start_time, peak_end_time))
 
-        # Save windows to dictionary
-        rl_filename = os.path.basename(rl_emg_file)
-        windows_dict[rl_filename] = clusters
+        # Save each file's clusters as a separate CSV
+        window_data = [{'Start_Time': start_time, 'End_Time': end_time} for start_time, end_time in clusters]
+        output_df = pd.DataFrame(window_data)
+        output_file_name = os.path.join(output_directory, f"{os.path.splitext(os.path.basename(rl_emg_file))[0]}_windows.csv")
+        output_df.to_csv(output_file_name, index=False)
+
+        print(f"Saved clusters for {os.path.basename(rl_emg_file)} to {output_file_name}")
 
         # Load RU EMG data
         ru_emg_data_raw = pd.read_csv(ru_emg_file)
@@ -126,14 +129,6 @@ for root, dirs, files in os.walk(base_directory):
         ru_linear_acceleration_df = pd.DataFrame(ru_linear_acceleration.tolist(), columns=['linear_acceleration_x', 'linear_acceleration_y', 'linear_acceleration_z'])
         ru_imu_data = pd.concat([ru_imu_data_raw['timestamp'], ru_orientation_df, ru_angular_velocity_df, ru_linear_acceleration_df], axis=1)
 
-
-        # Add these print statements for debugging
-        print("RL EMG Data:", rl_emg_data.head())         # Check if data is loaded and parsed
-        print("RU EMG Data:", ru_emg_data.head())
-        print("RL IMU Data:", rl_imu_data.head())
-        print("RU IMU Data:", ru_imu_data.head())
-        print("Clusters (start and end times):", clusters)  # Check if clusters are calculated correctly
-
         # Plotting
         fig, axs = plt.subplots(4, 1, figsize=(14, 20), sharex=True)
 
@@ -150,7 +145,6 @@ for root, dirs, files in os.walk(base_directory):
         axs[1].legend()
 
         # Plot RL IMU Linear Acceleration
-
         for col in rl_linear_acceleration_df.columns:
             axs[2].plot(rl_imu_data['timestamp'], rl_imu_data[col], label=f'RL_{col}')
         axs[2].set_ylabel('RL IMU Linear Acceleration (m/s^2)')
@@ -163,7 +157,7 @@ for root, dirs, files in os.walk(base_directory):
         axs[3].set_xlabel('Time (s)')
         axs[3].legend()
 
-        # Apply the same cluster windows from RL to all subplots
+        # Highlight clusters
         for start_time, end_time in clusters:
             axs[0].axvspan(start_time, end_time, color='blue', alpha=0.1)
             axs[1].axvspan(start_time, end_time, color='blue', alpha=0.1)
@@ -178,4 +172,3 @@ for root, dirs, files in os.walk(base_directory):
 
         plt.tight_layout()
         plt.show()
-
