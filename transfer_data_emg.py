@@ -24,7 +24,7 @@ def convert_data(data):
     return f"({numbers.replace(',', '')})"
 
 # Directory containing the data
-root_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/h0_segmented"
+root_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/h1_segmented"
 
 # Process all subfolders
 for subdir, _, files in os.walk(root_dir):

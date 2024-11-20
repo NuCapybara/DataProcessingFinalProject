@@ -107,7 +107,7 @@ def combine_segments(transformed_dir, combined_dir, subfolder_name, prefix, outp
     print(f"Combined file saved: {output_path}")
 
 # Main processing loop
-root_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/h0_segmented"
+root_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/h1_segmented"
 combined_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/imu_combined"
 
 for subdir, dirs, files in os.walk(root_dir):

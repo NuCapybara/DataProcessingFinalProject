@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Path to the RU_emg_combined.csv file
-file_path = "emg_csv_data/h0_segmented/H_r2deg45h0_segmented/transformed/RL_emg_combined.csv"  # Replace with the actual file path
+file_path = "emg_csv_data/h1_segmented/H_r3deg157h1_segmented/transformed/RL_emg_combined.csv"  # Replace with the actual file path
 
 # Load the data
 df = pd.read_csv(file_path)
