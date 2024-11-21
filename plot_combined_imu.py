@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Define the file path to the combined data (update the path as necessary)
-file_path = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/imu_combined/H_r3deg157h1_segmented/RL_imu_combined.csv"  # Replace with RU if needed
+file_path = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/imu_combined/h1/H_r3deg157h1_segmented/RL_imu_combined_formatted.csv"  # Replace with RU if needed
 
 # Load the data
 df = pd.read_csv(file_path)

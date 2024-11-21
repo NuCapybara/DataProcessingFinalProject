@@ -1,70 +1,86 @@
 import os
 import pandas as pd
 
-# Base directory for combined EMG data
-base_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/emg_combined"
+# Base directory for combined IMU data
+imu_base_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/imu_combined"
 
 # Subdirectories for h0 and h1
 sub_dirs = ["h0", "h1"]
 
-# Initialize variables
-time_spans = {}  # Dictionary to store file name and its time span
-total_time_span = 0
-file_count = 0
+# Function to parse time column dynamically
+def parse_time_column(time_series):
+    try:
+        # Attempt auto-parsing
+        parsed_time = pd.to_datetime(time_series, errors='coerce')
+        if parsed_time.isnull().any():
+            print("Warning: Some time values could not be parsed. Check input format.")
+        return parsed_time
+    except Exception as e:
+        print(f"Time parsing failed: {e}")
+        return pd.NaT
 
-# Loop through h0 and h1 directories
-for sub_dir in sub_dirs:
-    main_dir = os.path.join(base_dir, sub_dir)
-    print(f"Processing main directory: {main_dir}")  # Debugging info
+# Function to calculate time spans
+def calculate_time_spans(base_dir, file_suffix):
+    time_spans = {}
+    total_time_span = 0
+    file_count = 0
 
-    if not os.path.exists(main_dir):
-        print(f"Directory not found: {main_dir}")
-        continue
+    for sub_dir in sub_dirs:
+        main_dir = os.path.join(base_dir, sub_dir)
+        print(f"Processing main directory: {main_dir}")
 
-    # Loop through subfolders in h0/h1
-    for subfolder in os.listdir(main_dir):
-        transformed_dir = os.path.join(main_dir, subfolder, "transformed")
-        print(f"Checking 'transformed' folder: {transformed_dir}")  # Debugging info
-
-        if not os.path.exists(transformed_dir):
-            print(f"No 'transformed' folder in {os.path.join(main_dir, subfolder)}")
+        if not os.path.exists(main_dir):
+            print(f"Directory not found: {main_dir}")
             continue
 
-        # Process all CSV files in the transformed directory
-        for file in os.listdir(transformed_dir):
-            if file.endswith(".csv"):  # Process only CSV files
-                file_path = os.path.join(transformed_dir, file)
-                print(f"Processing file: {file_path}")  # Debugging info
+        for subfolder in os.listdir(main_dir):
+            subfolder_dir = os.path.join(main_dir, subfolder)
 
-                try:
-                    # Read the file
-                    df = pd.read_csv(file_path)
-                    df['time'] = pd.to_datetime(df['time'], format='%Y/%m/%d/%H:%M:%S.%f')
+            if not os.path.isdir(subfolder_dir):
+                continue
 
-                    # Calculate the time span
-                    start_time = df['time'].iloc[0]
-                    end_time = df['time'].iloc[-1]
-                    time_span = (end_time - start_time).total_seconds()
+            for file in os.listdir(subfolder_dir):
+                if file.endswith(file_suffix):  # Process only scaled files
+                    file_path = os.path.join(subfolder_dir, file)
+                    print(f"Processing file: {file_path}")
 
-                    # Store the time span
-                    time_spans[file_path] = time_span
-                    total_time_span += time_span
-                    file_count += 1
-                except Exception as e:
-                    print(f"Error processing file {file_path}: {e}")
+                    try:
+                        # Read the file
+                        df = pd.read_csv(file_path)
 
-# Calculate the shortest and average time spans
-if time_spans:
-    shortest_file = min(time_spans, key=time_spans.get)
-    shortest_time_span = time_spans[shortest_file]
-    average_time_span = total_time_span / file_count if file_count > 0 else 0
+                        # Dynamically parse the time column
+                        df['time'] = parse_time_column(df['time'])
 
-    # Print results
-    print("\nTime Spans for Each File:")
-    for file, span in time_spans.items():
-        print(f"{file}: {span:.2f} seconds")
+                        if df['time'].isnull().any():
+                            print(f"Skipping file due to unparseable time values: {file_path}")
+                            continue
 
-    print(f"\nShortest Time Span: {shortest_time_span:.2f} seconds (File: {shortest_file})")
-    print(f"Average Time Span: {average_time_span:.2f} seconds")
-else:
-    print("No CSV files found.")
+                        # Calculate time span
+                        start_time = df['time'].iloc[0]
+                        end_time = df['time'].iloc[-1]
+                        time_span = (end_time - start_time).total_seconds()
+
+                        # Store time span
+                        time_spans[file_path] = time_span
+                        total_time_span += time_span
+                        file_count += 1
+                    except Exception as e:
+                        print(f"Error processing file {file_path}: {e}")
+
+    if time_spans:
+        shortest_file = min(time_spans, key=time_spans.get)
+        shortest_time_span = time_spans[shortest_file]
+        average_time_span = total_time_span / file_count if file_count > 0 else 0
+
+        # Print results
+        print("\nTime Spans for Each File:")
+        for file, span in time_spans.items():
+            print(f"{file}: {span:.2f} seconds")
+
+        print(f"\nShortest Time Span: {shortest_time_span:.2f} seconds (File: {shortest_file})")
+        print(f"Average Time Span: {average_time_span:.2f} seconds")
+    else:
+        print("No valid CSV files found.")
+
+# Process scaled IMU files
+calculate_time_spans(imu_base_dir, "_scaled.csv")
