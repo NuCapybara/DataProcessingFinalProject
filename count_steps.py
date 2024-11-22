@@ -16,10 +16,10 @@ def count_rows_in_csv(folder_path):
                         reader = csv.reader(csv_file)
                         row_count = sum(1 for row in reader) - 1  # Subtract 1 for the header row
 
-                    print(f"{file}: {row_count} rows")
+                    print(f"{root},{file}: {row_count} rows")
                 except Exception as e:
                     print(f"Error processing {file}: {e}")
 
 if __name__ == "__main__":
-    folder_path = "emg_csv_data/emg_scale/h0"  # Replace with your CSV folder path
+    folder_path = "emg_csv_data/imu_scale/h1"  # Replace with your CSV folder path
     count_rows_in_csv(folder_path)
