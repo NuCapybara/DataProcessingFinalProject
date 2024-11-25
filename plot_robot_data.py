@@ -82,5 +82,5 @@ def plot_all_robot_data(directory):
                 plot_robot_data(file_path, subfolder_name)
 
 # Example usage
-robot_data_dir = "robot_csv_data"
+robot_data_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/robot_csv_data/cropped_data/"
 plot_all_robot_data(robot_data_dir)
