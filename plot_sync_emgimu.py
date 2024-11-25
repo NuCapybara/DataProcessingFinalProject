@@ -62,8 +62,8 @@ def plot_emg_imu_detailed(emg_file, imu_file, output_plot_path):
     plt.show()
 
 # Example usage
-emg_file_path = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Segmented_Sync_Data_EMGIMU/h0_segmented/H_r1deg0h0_segmented/H_r1deg0h0_RL_emg_seg1.csv"  # Replace with actual synchronized EMG file path
-imu_file_path = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Segmented_Sync_Data_EMGIMU/h0_segmented/H_r1deg0h0_segmented/H_r1deg0h0_RL_imu_seg1.csv"  # Replace with actual synchronized IMU file path
+emg_file_path = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Segmented_Sync_Data_EMGIMU/h1_segmented/H_r1deg0h1_segmented/H_r1deg0h1_RL_emg_seg1.csv"  # Replace with actual synchronized EMG file path
+imu_file_path = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Segmented_Sync_Data_EMGIMU/h1_segmented/H_r1deg0h1_segmented/H_r1deg0h1_RL_imu_seg1.csv"  # Replace with actual synchronized IMU file path
 output_plot_path = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Segmented_Sync_Data_EMGIMU/h0_segmented/H_r1deg0h0_segmented"  # Replace with desired output plot path
 
 plot_emg_imu_detailed(emg_file_path, imu_file_path, output_plot_path)
