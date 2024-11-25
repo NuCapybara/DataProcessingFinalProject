@@ -17,7 +17,7 @@ def parse_imu_field(field_str):
     values = field_str[start_idx:end_idx].split(",")
     return [float(val.split("=")[1]) for val in values]
 
-def plot_emg_imu_detailed(emg_file, imu_file, output_plot_path):
+def plot_emg_imu_detailed(emg_file, imu_file):
     # Load synchronized EMG and IMU data
     emg_data = pd.read_csv(emg_file)
     imu_data = pd.read_csv(imu_file)
@@ -43,8 +43,8 @@ def plot_emg_imu_detailed(emg_file, imu_file, output_plot_path):
     plt.title('Detailed EMG Signal Over Time')
     plt.legend()
     plt.grid()
-    plt.savefig(os.path.join(output_plot_path, "emg_detailed_plot.png"))
-    print(f"EMG plot saved to: {os.path.join(output_plot_path, 'emg_detailed_plot.png')}")
+    # plt.savefig(os.path.join(output_plot_path, "emg_detailed_plot.png"))
+    # print(f"EMG plot saved to: {os.path.join(output_plot_path, 'emg_detailed_plot.png')}")
     plt.show()
 
     # Plot IMU linear acceleration (x, y, z)
@@ -57,14 +57,14 @@ def plot_emg_imu_detailed(emg_file, imu_file, output_plot_path):
     plt.title('IMU Linear Acceleration Over Time')
     plt.legend()
     plt.grid()
-    plt.savefig(os.path.join(output_plot_path, "imu_detailed_plot.png"))
-    print(f"IMU plot saved to: {os.path.join(output_plot_path, 'imu_detailed_plot.png')}")
+    # plt.savefig(os.path.join(output_plot_path, "imu_detailed_plot.png"))
+    # print(f"IMU plot saved to: {os.path.join(output_plot_path, 'imu_detailed_plot.png')}")
     plt.show()
 
 # Example usage
-emg_file_path = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Segmented_Sync_Data_EMGIMU/h1_segmented/H_r1deg0h1_segmented/H_r1deg0h1_RL_emg_seg1.csv"  # Replace with actual synchronized EMG file path
-imu_file_path = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Segmented_Sync_Data_EMGIMU/h1_segmented/H_r1deg0h1_segmented/H_r1deg0h1_RL_imu_seg1.csv"  # Replace with actual synchronized IMU file path
-output_plot_path = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Segmented_Sync_Data_EMGIMU/h0_segmented/H_r1deg0h0_segmented"  # Replace with desired output plot path
+emg_file_path = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/emg_combined_sync_data/h1_segmented/H_r1deg0h1_segmented/RL_emg_combined.csv"  # Replace with actual synchronized EMG file path
+imu_file_path = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/emg_combined_sync_data/h1_segmented/H_r1deg0h1_segmented/RL_imu_combined.csv"  # Replace with actual synchronized IMU file path
+# output_plot_path = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Segmented_Sync_Data_EMGIMU/h0_segmented/H_r1deg0h0_segmented"  # Replace with desired output plot path
 
-plot_emg_imu_detailed(emg_file_path, imu_file_path, output_plot_path)
+plot_emg_imu_detailed(emg_file_path, imu_file_path)
 

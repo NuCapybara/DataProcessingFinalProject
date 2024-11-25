@@ -65,7 +65,7 @@ def process_mcap_to_csv(input_folder, output_folder):
                 print(f"Saved CSV: {output_csv}")
 
 if __name__ == "__main__":
-    input_folder = "RobotJointData/h0"  # Replace with your MCAP folder path
+    input_folder = "RobotJointData/h1"  # Replace with your MCAP folder path
     output_folder = "robot_csv_data"    # Output folder for CSV files
     
     process_mcap_to_csv(input_folder, output_folder)
