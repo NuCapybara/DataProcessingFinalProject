@@ -67,9 +67,9 @@ def combine_and_save_segments(segment_files, trail_path, input_dir, output_dir, 
     print(f"Combined IMU data saved to: {output_file}")
 
 
-# Input and output directories
-input_base_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Segmented_Sync_Data_EMGIMU"
-output_base_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/emg_combined_sync_data"
+input_base_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Sedmengted_sync_smooth_Data_IMUEMG/"
+# Define base output directory
+output_base_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/emg_combined_sync_smooth_data"
 
 # Combine IMU segments
 combine_imu_segments(input_base_dir, output_base_dir)

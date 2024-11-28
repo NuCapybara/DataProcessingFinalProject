@@ -63,7 +63,7 @@ def downsample_to_shortest(trail_folder):
         print(f"Downsampled and saved: {emg_file}, {imu_file}")
 
 # Process all trails
-base_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Segmented_Sync_Data_EMGIMU/h1_segmented"
+base_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Sedmengted_sync_smooth_Data_IMUEMG/h0_segmented"
 for trail_folder_name in os.listdir(base_dir):
     trail_folder_path = os.path.join(base_dir, trail_folder_name)
     if os.path.isdir(trail_folder_path):

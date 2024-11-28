@@ -1,7 +1,5 @@
 import os
 import pandas as pd
-
-
 def combine_segments_with_continuous_timestamps(subdir, prefix, output_dir, output_name):
     """
     Combine EMG segment files with a specific prefix into one file, ensuring continuous timestamps,
@@ -28,6 +26,9 @@ def combine_segments_with_continuous_timestamps(subdir, prefix, output_dir, outp
     for segment_file in segment_files:
         df = pd.read_csv(segment_file)
 
+        # Debug: Print segment start and end timestamps
+        print(f"Processing file: {segment_file}, Start: {df['timestamp'].iloc[0]}, End: {df['timestamp'].iloc[-1]}")
+
         # Adjust timestamps for continuity
         if last_timestamp is not None:
             # Calculate the offset to make timestamps continuous
@@ -39,6 +40,9 @@ def combine_segments_with_continuous_timestamps(subdir, prefix, output_dir, outp
 
         # Append the current segment to the combined DataFrame
         combined_df = pd.concat([combined_df, df], ignore_index=True)
+
+    # Debug: Print combined start and end timestamps
+    print(f"Combined file: {output_name}, Start: {combined_df['timestamp'].iloc[0]}, End: {combined_df['timestamp'].iloc[-1]}")
 
     # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
@@ -67,9 +71,9 @@ def process_trails(root_dir, output_base_dir):
 
 
 # Define root directory for processing
-root_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Segmented_Sync_Data_EMGIMU"
+root_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Sedmengted_sync_smooth_Data_IMUEMG/"
 # Define base output directory
-output_base_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/emg_combined_sync_data"
+output_base_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/emg_combined_sync_smooth_data"
 
 # Process all trails
 process_trails(root_dir, output_base_dir)
