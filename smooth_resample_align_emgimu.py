@@ -2,8 +2,8 @@ import os
 import pandas as pd
 import numpy as np
 import ast
-from scipy.signal import detrend
-from scipy.signal import resample
+from scipy.signal import detrend, resample
+
 
 def smooth_and_rectify(emg_signal, window_size=50):
     """
@@ -50,6 +50,7 @@ def parse_imu_field(field_str):
     values = field_str[start_idx:end_idx].split(",")
     return [float(val.split("=")[1]) for val in values]
 
+
 def align_and_resample(emg_file, imu_file, output_dir, tolerance=0.01):
     try:
         # Load EMG and IMU data
@@ -67,12 +68,17 @@ def align_and_resample(emg_file, imu_file, output_dir, tolerance=0.01):
         imu_segment_length = len(imu_data)
         downsampled_emg = downsample_emg(smoothed_channels, imu_segment_length)
 
-        # Replace the `_data` column with the downsampled data
-        emg_data = emg_data.iloc[:imu_segment_length]  # Keep only rows matching IMU length
-        emg_data['_data'] = downsampled_emg.apply(lambda row: f"array('h', {row.tolist()})", axis=1)
+        # Recalculate timestamps to preserve the original time span
+        original_start = emg_data['timestamp'].iloc[0]
+        original_end = emg_data['timestamp'].iloc[-1]
+        downsampled_timestamps = np.linspace(original_start, original_end, imu_segment_length)
 
-        # Drop unnecessary columns
-        emg_data = emg_data[['timestamp', '_data', '_check_fields']]
+        # Update the downsampled EMG data with new timestamps
+        emg_data = pd.DataFrame({
+            'timestamp': downsampled_timestamps,
+            '_data': downsampled_emg.apply(lambda row: f"array('h', {row.tolist()})", axis=1),
+            '_check_fields': emg_data['_check_fields'].iloc[:imu_segment_length]
+        })
 
         # Ensure output directory exists
         os.makedirs(output_dir, exist_ok=True)
@@ -95,48 +101,28 @@ def align_and_resample(emg_file, imu_file, output_dir, tolerance=0.01):
         return False
 
 
-    except Exception as e:
-        print(f"Error processing EMG: {emg_file}, IMU: {imu_file} -> {e}")
-        return False
-
-
 def process_folder(input_base_dir, output_base_dir, tolerance=0.01):
-    """
-    Recursively process all subfolders under the input directory, ignoring the `transformed` folder.
-    """
     unmatched_emg_files = []
     unmatched_imu_files = []
     processed_pairs = set()
 
     for root, dirs, files in os.walk(input_base_dir):
-        # Skip 'transformed' folder
         dirs[:] = [d for d in dirs if d != "transformed"]
 
         emg_files = [os.path.join(root, f) for f in files if "_emg_seg" in f]
         imu_files = [os.path.join(root, f) for f in files if "_imu_seg" in f]
 
         for emg_file in emg_files:
-            # Extract segment ID and prefix (e.g., RU, RL) from EMG file name
             segment_id = emg_file.split("_emg_seg")[1].split(".csv")[0]
             prefix = emg_file.split("/")[-1].split("_")[2]
-
-            # Find corresponding IMU file with the same segment ID and prefix
             imu_file = next(
-                (
-                    imu
-                    for imu in imu_files
-                    if f"_{prefix}_imu_seg{segment_id}" in imu
-                ),
+                (imu for imu in imu_files if f"_{prefix}_imu_seg{segment_id}" in imu),
                 None,
             )
 
             if imu_file:
-                # Generate output directory
                 relative_path = os.path.relpath(root, input_base_dir)
                 output_dir = os.path.join(output_base_dir, relative_path)
-                os.makedirs(output_dir, exist_ok=True)
-
-                # Process and save data
                 success = align_and_resample(emg_file, imu_file, output_dir, tolerance)
                 if success:
                     processed_pairs.add((emg_file, imu_file))
@@ -146,20 +132,13 @@ def process_folder(input_base_dir, output_base_dir, tolerance=0.01):
             else:
                 unmatched_emg_files.append(emg_file)
 
-    # Log processing summary
-    print("\nProcessing Summary:")
-    print(f"Processed Unique Pairs: {len(processed_pairs)}")
-    print(f"Unmatched EMG files: {len(unmatched_emg_files)}")
-    for emg_file in unmatched_emg_files:
-        print(f"  - {emg_file}")
-    print(f"Unmatched IMU files: {len(unmatched_imu_files)}")
-    for imu_file in unmatched_imu_files:
-        print(f"  - {imu_file}")
+    print(f"Processed Pairs: {len(processed_pairs)}")
+    print(f"Unmatched EMG Files: {unmatched_emg_files}")
+    print(f"Unmatched IMU Files: {unmatched_imu_files}")
 
 
-# Base directories
+# Set directories and run
 input_base_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Segmented_Raw_Data_EMGIMU"
 output_base_dir = "/home/jialuyu/Data_Final_Project/DataProcessingFinalProject/emg_csv_data/Sedmengted_sync_smooth_Data_IMUEMG"
 
-# Process folders
 process_folder(input_base_dir, output_base_dir)
